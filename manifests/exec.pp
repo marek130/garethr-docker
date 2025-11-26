@@ -3,25 +3,21 @@
 # A define which executes a command inside a container.
 #
 define docker::exec(
-  $detach = false,
-  $interactive = false,
-  $tty = false,
-  $container = undef,
-  $command = undef,
-  $unless = undef,
-  $sanitise_name = true,
+  Boolean $detach        = false,
+  Boolean $interactive   = false,
+  Boolean $tty           = false,
+  String  $container     = undef,
+  String  $command       = undef,
+  String  $unless        = undef,
+  Boolean $sanitise_name = true,
 ) {
   include docker::params
 
   $docker_command = $docker::params::docker_command
-  validate_string($docker_command)
 
-  validate_string($container)
-  validate_string($command)
-  validate_string($unless)
-  validate_bool($detach)
-  validate_bool($interactive)
-  validate_bool($tty)
+  if $docker_command !~ String {
+    fail("Docker command must be String")
+  }
 
   $docker_exec_flags = docker_exec_flags({
     detach => $detach,

@@ -14,11 +14,9 @@
 #   Defaults to the value set in $docker::params::compose_version
 #
 class docker::compose(
-  $ensure = 'present',
-  $version = $docker::params::compose_version
+  Enum['present', 'absent'] $ensure = 'present',
+  String                    $version = $docker::params::compose_version
 ) inherits docker::params {
-  validate_string($version)
-  validate_re($ensure, '^(present|absent)$')
 
   if $ensure == 'present' {
     exec { "Install Docker Compose ${version}":

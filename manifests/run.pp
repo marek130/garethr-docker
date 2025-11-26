@@ -49,52 +49,52 @@
 # module does not yet support.
 #
 define docker::run(
-  $image,
-  $ensure = 'present',
-  $command = undef,
-  $memory_limit = '0b',
+  Pattern[/^\S+$/] $image,
+  Enum['present', 'absent'] $ensure = 'present',
+  Optional[String] $command = undef,
+  Pattern[/^[\d]*(b|k|m|g)$/] $memory_limit = '0b',
   $cpuset = [],
   $ports = [],
   $labels = [],
   $expose = [],
   $volumes = [],
   $links = [],
-  $use_name = false,
-  $running = true,
+  Boolean $use_name = false,
+  Boolean $running = true,
   $volumes_from = [],
   $net = 'bridge',
-  $username = false,
-  $hostname = false,
+  Variant[Boolean, String] $username = false,
+  Variant[Boolean, String] $hostname = false,
   $env = [],
   $env_file = [],
   $dns = [],
   $dns_search = [],
   $lxc_conf = [],
   $service_prefix = 'docker-',
-  $restart_service = true,
-  $restart_service_on_docker_refresh = true,
+  Boolean $restart_service = true,
+  Boolean $restart_service_on_docker_refresh = true,
   $manage_service = true,
   $docker_service = false,
-  $disable_network = false,
-  $privileged = false,
-  $detach = undef,
+  Boolean $disable_network = false,
+  Boolean $privileged = false,
+  Optional[Boolean] $detach = undef,
   $extra_parameters = undef,
-  $extra_systemd_parameters = {},
+  Hash $extra_systemd_parameters = {},
   $pull_on_start = false,
   $after = [],
   $after_service = [],
   $depends = [],
   $depend_services = [],
-  $tty = false,
+  Boolean $tty = false,
   $socket_connect = [],
   $hostentries = [],
-  $restart = undef,
+  Optional[Pattern[/^(no|always|on-failure)|^on-failure:[\d]+$/]] $restart = undef,
   $before_start = false,
   $before_stop = false,
-  $remove_container_on_start = true,
-  $remove_container_on_stop = true,
-  $remove_volume_on_start = false,
-  $remove_volume_on_stop = false,
+  Boolean $remove_container_on_start = true,
+  Boolean $remove_container_on_stop = true,
+  Boolean $remove_volume_on_start = false,
+  Boolean $remove_volume_on_stop = false,
   $custom_init_template = undef,
 ) {
   include docker::params
@@ -105,35 +105,17 @@ define docker::run(
     default => $custom_init_template,
   }
 
-  validate_re($image, '^[\S]*$')
-  validate_re($title, '^[\S]*$')
-  validate_re($memory_limit, '^[\d]*(b|k|m|g)$')
-  validate_re($ensure, '^(present|absent)')
-  if $restart {
-    validate_re($restart, '^(no|always|on-failure)|^on-failure:[\d]+$')
+  if $title !~ /^\S+$/ {
+    fail ("Wrong title format")
   }
-  validate_string($docker_command)
-  validate_string($service_name)
-  if $command {
-    validate_string($command)
+
+  if ($service_name) !~ String {
+    fail ("Service name must be a String")
   }
-  if $username {
-    validate_string($username)
+
+  if $docker_command !~ String {
+    fail ("Docker command must be a String")
   }
-  if $hostname {
-    validate_string($hostname)
-  }
-  validate_bool($running)
-  validate_bool($disable_network)
-  validate_bool($privileged)
-  validate_bool($restart_service)
-  validate_bool($restart_service_on_docker_refresh)
-  validate_bool($tty)
-  validate_bool($remove_container_on_start)
-  validate_bool($remove_container_on_stop)
-  validate_bool($remove_volume_on_start)
-  validate_bool($remove_volume_on_stop)
-  validate_bool($use_name)
 
   if ($remove_volume_on_start and !$remove_container_on_start) {
     fail("In order to remove the volume on start for ${title} you need to also remove the container")
@@ -150,12 +132,9 @@ define docker::run(
     }
   }
 
-  validate_hash($extra_systemd_parameters)
-
   if $detach == undef {
     $valid_detach = $docker::params::detach_service_in_init
   } else {
-    validate_bool($detach)
     $valid_detach = $detach
   }
 

@@ -29,15 +29,13 @@
 #
 define docker::registry(
   $server      = $title,
-  $ensure      = 'present',
+  Enum['present', 'absent'] $ensure = 'present',
   $username    = undef,
   $password    = undef,
   $email       = undef,
   $local_user  = 'root',
 ) {
   include docker::params
-
-  validate_re($ensure, '^(present|absent)$')
 
   $docker_command = $docker::params::docker_command
 

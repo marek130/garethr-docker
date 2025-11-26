@@ -21,19 +21,16 @@
 #   If you want to load a docker image from specific docker tar
 #
 define docker::image(
-  $ensure    = 'present',
-  $image     = $title,
+  Enum['present', 'absent', 'latest'] $ensure    = 'present',
+  Pattern[/^\S+$/]                    $image     = $title,
+  Boolean                             $force     = false,
   $image_tag = undef,
-  $force     = false,
   $docker_file = undef,
   $docker_dir = undef,
   $docker_tar = undef,
 ) {
   include docker::params
   $docker_command = $docker::params::docker_command
-  validate_re($ensure, '^(present|absent|latest)$')
-  validate_re($image, '^[\S]*$')
-  validate_bool($force)
 
   # Wrapper used to ensure images are up to date
   ensure_resource('file', '/usr/local/bin/update_docker_image.sh',
