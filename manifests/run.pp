@@ -283,7 +283,6 @@ define docker::run(
             ensure    => $running,
             enable    => false,
             hasstatus => $hasstatus,
-            restart   => '/bin/true', # TODO remove after - marek.pastierik
             require   => File[$initscript],
           }
         }
@@ -316,7 +315,6 @@ define docker::run(
             enable    => true,
             provider  => $provider,
             hasstatus => $hasstatus,
-            restart   => '/bin/true', # TODO remove after - marek.pastierik
             require   => File[$initscript],
           }
         }

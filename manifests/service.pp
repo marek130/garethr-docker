@@ -199,7 +199,6 @@ class docker::service (
       hasstatus  => $service_hasstatus,
       hasrestart => $service_hasrestart,
       provider   => $service_provider,
-      restart    => '/bin/true', # TODO remove after - marek.pastierik
     }
   }
 }
